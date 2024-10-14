@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Jogo da Memória</h1>
+    <div id="game-board"></div>
+    <button id="reset">Reiniciar Jogo</button>
+    <script src="script.js"></script>
+</body>
+</html>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 10px;
+}
+
+.card {
+    width: 100px;
+    height: 100px;
+    background-color: #007BFF;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.card.flipped {
+    background-color: #ffffff;
+    color: black;
+    transform: rotateY(180deg);
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+const boardElement = document.getElementById("game-board");
+const resetButton = document.getElementById("reset");
+
+const cards = [
+    "🍏", "🍏",
+    "🍌", "🍌",
+    "🍇", "🍇",
+    "🍉", "🍉",
+    "🍊", "🍊",
+    "🍒", "🍒",
+    "🍍", "🍍",
+    "🍓", "🍓",
+];
+
+let flippedCards = [];
+let matchedCards = [];
+
+// Embaralha as cartas
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+// Inicializa o tabuleiro
+function initBoard() {
+    const shuffledCards = shuffle(cards);
+    boardElement.innerHTML = "";
+
+    shuffledCards.forEach((cardValue, index) => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.value = cardValue;
+        card.addEventListener("click", () => flipCard(card));
+        boardElement.appendChild(card);
+    });
+}
+
+// Vira a carta
+function flipCard(card) {
+    if (flippedCards.length < 2 && !card.classList.contains("flipped")) {
+        card.classList.add("flipped");
+        card.textContent = card.dataset.value;
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+            setTimeout(checkForMatch, 1000);
+        }
+    }
+}
+
+// Verifica se as cartas combinam
+function checkForMatch() {
+    const [firstCard, secondCard] = flippedCards;
+
+    if (firstCard.dataset.value === secondCard.dataset.value) {
+        matchedCards.push(firstCard, secondCard);
+    } else {
+        firstCard.classList.remove("flipped");
+        firstCard.textContent = "";
+        secondCard.classList.remove("flipped");
+        secondCard.textContent = "";
+    }
+
+    flippedCards = [];
+
+    if (matchedCards.length === cards.length) {
+        alert("Você ganhou!");
+    }
+}
+
+// Reinicia o jogo
+resetButton.addEventListener("click", initBoard);
+
+// Inicializa o tabuleiro ao carregar
+initBoard();
